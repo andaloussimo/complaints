@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getSite, assetUrl } from "@/config/site";
+import { getSite, assetUrl, siteMetadataBase } from "@/config/site";
 import { themeToCssVars } from "@/lib/theme";
 
 export function generateMetadata(): Metadata {
   const { content } = getSite();
   const og = assetUrl(content.meta.ogImage);
-  const base = content.meta.siteUrl?.trim();
   return {
-    metadataBase: base ? new URL(base) : undefined,
+    metadataBase: siteMetadataBase(content.meta.siteUrl),
     title: content.meta.title,
     description: content.meta.description,
     openGraph: {

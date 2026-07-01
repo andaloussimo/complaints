@@ -49,7 +49,15 @@ if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(slug)) {
 if (slug.startsWith("_")) fail(`slug cannot start with "_" (reserved)`);
 
 const brand = req("NEW_BRAND");
-const domain = req("NEW_DOMAIN").replace(/\/+$/, "");
+let domain = req("NEW_DOMAIN").replace(/\/+$/, "");
+// Accept "acme.com" or "https://acme.com" — normalize to a full URL so the site's
+// canonical URL is always valid (a bare host would crash the build).
+if (!/^https?:\/\//i.test(domain)) domain = `https://${domain}`;
+try {
+  domain = new URL(domain).origin;
+} catch {
+  fail(`invalid domain "${process.env.NEW_DOMAIN}" — use something like https://acme.com`);
+}
 const color = (process.env.NEW_COLOR ?? "").trim();
 const lang = (process.env.NEW_LANG ?? "en").trim().toLowerCase();
 const email = (process.env.NEW_EMAIL ?? "").trim();

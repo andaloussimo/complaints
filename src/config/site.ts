@@ -49,3 +49,19 @@ export function assetUrl(name?: string): string | undefined {
   if (/^https?:\/\//.test(name) || name.startsWith("/")) return name;
   return `/site-assets/${name}`;
 }
+
+/**
+ * Safely turn a site's meta.siteUrl into a metadataBase URL. Prepends https://
+ * when the scheme is missing and returns undefined if empty/unparseable — so a
+ * hand-edited content.json (e.g. "test.com") can never crash the build.
+ */
+export function siteMetadataBase(siteUrl?: string): URL | undefined {
+  let v = (siteUrl ?? "").trim();
+  if (!v) return undefined;
+  if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+  try {
+    return new URL(v);
+  } catch {
+    return undefined;
+  }
+}
