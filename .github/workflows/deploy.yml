@@ -1,0 +1,63 @@
+name: Deploy sites to Cloudflare Pages
+
+# Deploys every site under sites/* to its own Cloudflare Pages project.
+# Convention: the Pages project name == the site folder name (slug).
+# Create each project once before its first deploy:
+#   npx wrangler pages project create <slug> --production-branch=main
+# Set each project's HUBSPOT_* secrets in the Cloudflare dashboard (or via
+#   wrangler pages secret put HUBSPOT_TOKEN --project-name=<slug>).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # 1. Discover the list of sites so new folders need no workflow edit.
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      sites: ${{ steps.list.outputs.sites }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        name: List site slugs
+        run: |
+          slugs=$(ls -1 sites | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "sites=$slugs" >> "$GITHUB_OUTPUT"
+          echo "Discovered: $slugs"
+
+  # 2. Build + deploy each site in parallel.
+  deploy:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJson(needs.discover.outputs.sites) }}
+    concurrency:
+      group: deploy-${{ matrix.site }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # SITE is the ONLY per-site build input; content/theme/lang/url all live
+      # in sites/${{ matrix.site }}/. prepare-site copies its assets into out/.
+      - name: Build ${{ matrix.site }}
+        run: npm run build
+        env:
+          SITE: ${{ matrix.site }}
+
+      # Direct upload (no CF build minutes). wrangler auto-bundles ./functions.
+      - name: Deploy ${{ matrix.site }}
+        run: npx wrangler pages deploy out --project-name="${{ matrix.site }}" --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

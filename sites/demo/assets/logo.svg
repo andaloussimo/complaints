@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="36" viewBox="0 0 180 36" fill="none" role="img" aria-label="RefundGuard">
+  <path d="M18 2 4 8v9c0 8 6 15 14 17 8-2 14-9 14-17V8L18 2Z" fill="currentColor"/>
+  <path d="m12 18 4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="40" y="24" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" fill="currentColor">RefundGuard</text>
+</svg>

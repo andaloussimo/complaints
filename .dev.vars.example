@@ -1,0 +1,14 @@
+# Copy to .dev.vars for local Cloudflare Function testing (npm run preview).
+# These mirror the secrets you set on each Cloudflare Pages project.
+# .dev.vars is gitignored.
+HUBSPOT_TOKEN=
+HUBSPOT_PIPELINE=
+HUBSPOT_STAGE=
+HUBSPOT_OWNER=
+HUBSPOT_PRIORITY=
+HUBSPOT_ROUTING_PROP=
+HUBSPOT_ROUTING_VALUE=
+HUBSPOT_OPERATOR_PROP=
+HUBSPOT_OPERATOR_CODE=
+HUBSPOT_ORIGIN_PROP=ticketorigin
+HUBSPOT_ORIGIN_VALUE=nextjs

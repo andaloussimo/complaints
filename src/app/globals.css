@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback theme tokens (overridden per-site via inline vars on <body>). */
+:root {
+  --color-brand: 13 109 181;
+  --color-brand-fg: 255 255 255;
+  --color-accent: 40 167 69;
+  --color-accent-fg: 255 255 255;
+  --color-surface: 255 255 255;
+  --color-muted: 247 249 251;
+  --color-ink: 31 41 55;
+  --color-line: 226 232 240;
+  --color-success: 30 126 52;
+  --color-danger: 176 42 55;
+  --radius: 8px;
+  --font-sans: Inter, system-ui, sans-serif;
+}
+
+body {
+  background-color: rgb(var(--color-muted));
+  color: rgb(var(--color-ink));
+  font-family: var(--font-sans);
+}
+
+@layer components {
+  .rich p {
+    @apply mb-3 leading-relaxed text-ink/80;
+  }
+  .rich p:last-child {
+    @apply mb-0;
+  }
+}
