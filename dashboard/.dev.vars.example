@@ -1,0 +1,4 @@
+# Copy to dashboard/.dev.vars for local testing (npm run preview). Gitignored.
+# Fine-grained GitHub PAT scoped to the site repo: Contents=write, Actions=write.
+GITHUB_TOKEN=
+GITHUB_REPO=andaloussimo/complaints

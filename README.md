@@ -140,13 +140,45 @@ src/
 functions/api/refund.ts   # Cloudflare Pages Function -> /api/refund (HubSpot)
 sites/<slug>/             # per-site content.json, theme.json, assets/
 scripts/prepare-site.mjs  # copies active site assets into /public
-.github/workflows/        # deploy.yml (deploy matrix) + new-site.yml (create a site)
+.github/workflows/        # deploy.yml (matrix) + new-site.yml (create) + deploy-dashboard.yml
+dashboard/                # admin dashboard app (see below)
 ```
 
-## Roadmap: dashboard
+## Admin dashboard (`dashboard/`)
 
-The file-based model is intentionally dashboard-ready. A future admin app would write
-`content.json` / `theme.json` and upload images into `sites/<slug>/`, then trigger a
-rebuild/redeploy — no template changes required, because the site already reads
-everything from those files.
+A hosted admin UI to **create and edit sites through forms** — no JSON editing, no
+terminal, no Cloudflare steps. It's a Next.js static export + Cloudflare Pages Functions
+(same stack as the sites), deployed as its own Pages project behind **Cloudflare Access**.
+
+It's a thin, safe layer over the GitHub API that reuses the existing pipeline:
+- **Create** → validates inputs, then dispatches [`new-site.yml`](.github/workflows/new-site.yml).
+- **Edit** → commits the changed `content.json` / `theme.json` / logo via the GitHub
+  Contents API → triggers [`deploy.yml`](.github/workflows/deploy.yml).
+- **Validation gate:** every create/edit is checked against the content schema before it
+  can reach `main`, so a bad value (e.g. a URL with no scheme) can't break a build.
+
+Because it drives the workflows, its **only secret is a scoped GitHub token** — the
+Cloudflare/HubSpot tokens stay in GitHub Actions.
+
+```
+dashboard/
+  src/app/        # / (list)  /new (create)  /edit?site=<slug> (edit)
+  src/lib/        # github.ts (REST client), validate.ts (schema+normalize), api.ts, types.ts
+  functions/api/  # sites (list/create), sites/[slug] (get/put), sites/[slug]/logo, status
+```
+
+### One-time setup
+1. Create a fine-grained GitHub PAT for `andaloussimo/complaints` (Contents=write,
+   Actions=write).
+2. Create the Pages project: `npx wrangler pages project create complaints-dashboard
+   --production-branch=main`, and set its secrets `GITHUB_TOKEN` + `GITHUB_REPO=andaloussimo/complaints`.
+3. Enable **Cloudflare Access** on the dashboard's domain (email allowlist).
+4. Push (or run **Deploy dashboard** in Actions) — `deploy-dashboard.yml` ships it.
+
+### Local dev
+```bash
+cd dashboard
+cp .dev.vars.example .dev.vars   # add a GitHub token
+npm install
+npm run preview                  # builds + serves via wrangler (functions included)
 ```
