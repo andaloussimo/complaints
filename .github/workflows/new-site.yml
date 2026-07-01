@@ -1,0 +1,123 @@
+name: New site
+
+# Non-technical "create a site" form. Run it from the repo's Actions tab:
+#   Actions -> New site -> Run workflow -> fill the fields -> Run.
+# It scaffolds sites/<slug>/, commits to main, creates the Cloudflare Pages
+# project, sets its HubSpot secret, and deploys — so the site goes live from
+# this one form.
+#
+# Requirements (set once, repo Settings -> Secrets and variables -> Actions):
+#   Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, HUBSPOT_TOKEN (shared)
+#   Optional secrets: HUBSPOT_PIPELINE, HUBSPOT_OPERATOR_PROP
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Site ID / Cloudflare project name (lowercase, e.g. acme)"
+        required: true
+      brand:
+        description: "Brand / company name (e.g. Acme Refunds)"
+        required: true
+      domain:
+        description: "Site URL (e.g. https://acme.com)"
+        required: true
+      color:
+        description: "Brand color as hex (e.g. #9333ea) — optional"
+        required: false
+      lang:
+        description: "Form language"
+        required: true
+        default: "en"
+        type: choice
+        options: [en, fr, es, pt, sr, me, bg, lv, sl, fi, ro]
+      email:
+        description: "Support email — optional"
+        required: false
+      phone:
+        description: "Support phone — optional"
+        required: false
+      operator:
+        description: "HubSpot operator code for this site — optional"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Scaffold sites/${{ inputs.slug }}
+        run: npm run new-site
+        env:
+          NEW_SLUG: ${{ inputs.slug }}
+          NEW_BRAND: ${{ inputs.brand }}
+          NEW_DOMAIN: ${{ inputs.domain }}
+          NEW_COLOR: ${{ inputs.color }}
+          NEW_LANG: ${{ inputs.lang }}
+          NEW_EMAIL: ${{ inputs.email }}
+          NEW_PHONE: ${{ inputs.phone }}
+          NEW_OPERATOR: ${{ inputs.operator }}
+
+      - name: Commit to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "sites/${{ inputs.slug }}"
+          git commit -m "Add site: ${{ inputs.slug }} (${{ inputs.brand }})"
+          git push origin HEAD:main
+
+      - name: Create Cloudflare Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages project create "${{ inputs.slug }}" --production-branch=main \
+            || echo "Project may already exist — continuing."
+
+      - name: Set HubSpot secrets on the project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
+          HUBSPOT_PIPELINE: ${{ secrets.HUBSPOT_PIPELINE }}
+          HUBSPOT_OPERATOR_PROP: ${{ secrets.HUBSPOT_OPERATOR_PROP }}
+        run: |
+          set -e
+          put() { printf '%s' "$2" | npx wrangler pages secret put "$1" --project-name="${{ inputs.slug }}"; }
+          if [ -n "$HUBSPOT_TOKEN" ]; then put HUBSPOT_TOKEN "$HUBSPOT_TOKEN"; else echo "No HUBSPOT_TOKEN secret set — skipping (form will error until it's added)."; fi
+          [ -n "$HUBSPOT_PIPELINE" ] && put HUBSPOT_PIPELINE "$HUBSPOT_PIPELINE" || true
+          [ -n "$HUBSPOT_OPERATOR_PROP" ] && put HUBSPOT_OPERATOR_PROP "$HUBSPOT_OPERATOR_PROP" || true
+
+      - name: Build ${{ inputs.slug }}
+        run: npm run build
+        env:
+          SITE: ${{ inputs.slug }}
+
+      - name: Deploy ${{ inputs.slug }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler pages deploy out --project-name="${{ inputs.slug }}" --branch=main
+
+      - name: Summary
+        run: |
+          {
+            echo "### ✅ Site \`${{ inputs.slug }}\` created & deployed"
+            echo ""
+            echo "- **Brand:** ${{ inputs.brand }}"
+            echo "- **Files:** \`sites/${{ inputs.slug }}/\` (committed to main)"
+            echo "- **Cloudflare project:** ${{ inputs.slug }}"
+            echo ""
+            echo "**Next (one-time):** add the custom domain \`${{ inputs.domain }}\` to the \`${{ inputs.slug }}\` Pages project in the Cloudflare dashboard."
+          } >> "$GITHUB_STEP_SUMMARY"

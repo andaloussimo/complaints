@@ -87,16 +87,36 @@ root `functions/` directory. Deploys run via GitHub Actions + Wrangler direct up
 
 Repo-level GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 
-### Add a new site
+### Add a new site — the easy way (no code)
 
-1. Create `sites/<slug>/` with `content.json` (incl. `meta.formLang`, `meta.siteUrl`),
-   `theme.json`, and `assets/`.
-2. Create the Pages project once:
-   `npx wrangler pages project create <slug> --production-branch=main`
-3. Set its HubSpot secrets:
-   `npx wrangler pages secret put HUBSPOT_TOKEN --project-name=<slug>` (repeat as needed).
-4. Add the custom domain to the project in the Cloudflare dashboard.
-5. Push to `main` — the matrix builds & deploys every site, including the new one.
+Anyone can create a site from the browser, no terminal or JSON editing:
+
+1. Repo → **Actions** tab → **New site** → **Run workflow**.
+2. Fill the form: ID/slug (e.g. `acme`), brand name, domain, brand color, form
+   language, support email/phone, operator code.
+3. **Run.** The action scaffolds `sites/<slug>/`, commits it, creates the Cloudflare
+   Pages project, sets the HubSpot secret, and deploys — the site goes live.
+4. One-time: add the custom domain to that Pages project in the Cloudflare dashboard.
+
+This is powered by [`.github/workflows/new-site.yml`](.github/workflows/new-site.yml) +
+[`scripts/new-site.mjs`](scripts/new-site.mjs), which copy [`sites/_template/`](sites/_template/)
+and apply the form inputs. Prerequisite repo secrets (set once): `CLOUDFLARE_API_TOKEN`,
+`CLOUDFLARE_ACCOUNT_ID`, `HUBSPOT_TOKEN` (shared across sites), and optionally
+`HUBSPOT_PIPELINE` / `HUBSPOT_OPERATOR_PROP`.
+
+To refine copy later, edit `sites/<slug>/content.json` in GitHub's web editor and commit —
+the deploy matrix ships the change.
+
+### Add a new site — manually (CLI)
+
+```bash
+NEW_SLUG=acme NEW_BRAND="Acme Refunds" NEW_DOMAIN=https://acme.com \
+NEW_COLOR="#9333ea" NEW_LANG=fr NEW_EMAIL=support@acme.com npm run new-site
+```
+
+Then create the Pages project (`npx wrangler pages project create acme
+--production-branch=main`), set its `HUBSPOT_TOKEN` secret, add the domain, and push to
+`main`. Site folders starting with `_` (like `_template`) are ignored by the deploy matrix.
 
 Manual one-off deploy of a single site:
 
@@ -120,8 +140,7 @@ src/
 functions/api/refund.ts   # Cloudflare Pages Function -> /api/refund (HubSpot)
 sites/<slug>/             # per-site content.json, theme.json, assets/
 scripts/prepare-site.mjs  # copies active site assets into /public
-wrangler.toml             # Cloudflare Pages config (compat date + output dir)
-.github/workflows/        # deploy.yml — per-site build + deploy matrix
+.github/workflows/        # deploy.yml (deploy matrix) + new-site.yml (create a site)
 ```
 
 ## Roadmap: dashboard

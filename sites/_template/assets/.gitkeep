@@ -1,0 +1,2 @@
+# New sites start with no logo — the header shows the brand name as text until
+# you drop a logo.svg/png here and set "brand.logo" in content.json.

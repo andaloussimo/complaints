@@ -1,7 +1,0 @@
-# Cloudflare Pages config shared by every site.
-# The per-site project name is passed at deploy time via
-#   wrangler pages deploy out --project-name=<slug>
-# so this file intentionally has no `name`.
-
-compatibility_date = "2025-06-01"
-pages_build_output_dir = "out"

@@ -5,6 +5,7 @@
   "description": "Multi-tenant Next.js template for refund/complaint sites. Content and theme are driven per-site by JSON.",
   "scripts": {
     "prepare-site": "node scripts/prepare-site.mjs",
+    "new-site": "node scripts/new-site.mjs",
     "predev": "npm run prepare-site",
     "prebuild": "npm run prepare-site",
     "dev": "next dev",
@@ -12,7 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "preview": "npm run build && wrangler pages dev out"
+    "preview": "npm run build && wrangler pages dev out --compatibility-date=2025-06-01"
   },
   "dependencies": {
     "next": "^14.2.35",

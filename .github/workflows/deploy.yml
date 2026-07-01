@@ -23,7 +23,8 @@ jobs:
       - id: list
         name: List site slugs
         run: |
-          slugs=$(ls -1 sites | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          # Real sites only — skip folders starting with "_" (e.g. _template).
+          slugs=$(ls -1 sites | grep -v '^_' | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "sites=$slugs" >> "$GITHUB_OUTPUT"
           echo "Discovered: $slugs"
 
