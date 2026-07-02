@@ -1,8 +1,7 @@
 {
   "brand": {
-    "name": "RefundGuard",
-    "logo": "logo.svg",
-    "logoAlt": "RefundGuard"
+    "name": "88195.fr",
+    "logoAlt": "88195.fr"
   },
   "hubspot": {
     "pipeline": "3755488491",
@@ -15,7 +14,7 @@
   },
   "nav": [
     {
-      "label": "Home",
+      "label": "Accueil",
       "href": "/"
     },
     {
@@ -23,145 +22,134 @@
       "href": "/contact"
     },
     {
-      "label": "Privacy Policy",
+      "label": "Politique de confidentialité",
       "href": "/privacy"
     },
     {
-      "label": "Confidentiality",
+      "label": "Confidentialité",
       "href": "/confidentiality"
     }
   ],
   "meta": {
-    "title": "RefundGuard — Claim your refund",
-    "description": "Submit a secure refund request in minutes. We locate your transaction and process your refund to the correct account.",
-    "locale": "en",
+    "title": "88195.fr — Demandez votre remboursement",
+    "description": "Envoyez une demande de remboursement sécurisée en quelques minutes. Nous retrouvons votre transaction et effectuons le remboursement sur le bon compte.",
+    "locale": "fr",
     "ogImage": "og.png",
-    "formLang": "en",
-    "siteUrl": "https://demo.example"
+    "formLang": "fr",
+    "siteUrl": "https://88195.fr"
   },
   "home": {
     "hero": {
-      "eyebrow": "Fast, secure refunds",
-      "title": "Get the refund you're owed",
-      "subtitle": "Fill in the form below with your details and proof of payment. Our team locates the transaction and issues your refund to the correct account.",
+      "eyebrow": "Remboursements rapides et sécurisés",
+      "title": "Obtenez le remboursement qui vous est dû",
+      "subtitle": "Remplissez le formulaire ci-dessous avec vos coordonnées et votre preuve de paiement. Notre équipe retrouve la transaction et effectue votre remboursement sur le bon compte.",
       "highlights": [
-        "Processed by a dedicated support team",
-        "Your data is encrypted and protected",
-        "Refund issued directly to your IBAN"
+        "Traité par une équipe de support dédiée",
+        "Vos données sont chiffrées et protégées",
+        "Remboursement versé directement sur votre IBAN"
       ]
     },
-    "formTitle": "Request a refund",
-    "formIntro": "It only takes a couple of minutes. Have your invoice and bank details (IBAN) ready.",
+    "formTitle": "Demander un remboursement",
+    "formIntro": "Cela ne prend que quelques minutes. Munissez-vous de votre facture et de vos coordonnées bancaires (IBAN).",
     "operatorCode": "",
     "trust": [
       {
-        "heading": "How it works",
+        "heading": "Comment ça marche",
         "body": [
-          "1. Enter your phone number, email and bank details.",
-          "2. Upload your invoice and proof of bank details.",
-          "3. Confirm and submit — we open a ticket and get to work."
+          "1. Renseignez votre numéro de téléphone, votre e-mail et vos coordonnées bancaires.",
+          "2. Téléversez votre facture et votre justificatif bancaire.",
+          "3. Confirmez et envoyez — nous ouvrons un dossier et nous nous en occupons."
         ]
       }
     ]
   },
   "contact": {
-    "title": "Contact us",
-    "subtitle": "We're here to help with your refund request.",
+    "title": "Contactez-nous",
+    "subtitle": "Nous sommes là pour vous aider avec votre demande de remboursement.",
     "intro": [
-      "If you have a question about an existing request or need help submitting one, reach out using the details below and our support team will get back to you."
+      "Pour toute question concernant une demande en cours ou pour obtenir de l'aide avant d'envoyer votre demande, contactez-nous via les coordonnées ci-dessous et notre équipe de support vous répondra."
     ],
     "channels": [
       {
         "type": "email",
-        "label": "Email",
-        "value": "support@refundguard.example",
-        "href": "mailto:support@refundguard.example"
-      },
-      {
-        "type": "phone",
-        "label": "Phone",
-        "value": "+1 (555) 010-2030",
-        "href": "tel:+15550102030"
+        "label": "E-mail",
+        "value": "support@88195.fr",
+        "href": "mailto:support@88195.fr"
       },
       {
         "type": "hours",
-        "label": "Support hours",
-        "value": "Monday–Friday, 9:00–18:00"
-      },
-      {
-        "type": "address",
-        "label": "Address",
-        "value": "123 Market Street, Suite 400, Springfield"
+        "label": "Horaires du support",
+        "value": "Du lundi au vendredi, 9h00 – 18h00"
       }
     ]
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "subtitle": "How we collect, use and protect your personal data.",
+    "title": "Politique de confidentialité",
+    "subtitle": "Comment nous collectons, utilisons et protégeons vos données personnelles.",
     "updatedAt": "2026-01-01",
     "sections": [
       {
-        "heading": "1. Data we collect",
+        "heading": "1. Les données que nous collectons",
         "body": [
-          "When you submit a refund request we collect the phone number, email address and bank details (IBAN) you provide, together with any invoice or documents you upload.",
-          "We also collect basic technical information such as your IP address for security and fraud-prevention purposes."
+          "Lorsque vous envoyez une demande de remboursement, nous collectons le numéro de téléphone, l'adresse e-mail et les coordonnées bancaires (IBAN) que vous fournissez, ainsi que toute facture ou tout document que vous téléversez.",
+          "Nous collectons également des informations techniques de base, comme votre adresse IP, à des fins de sécurité et de prévention de la fraude."
         ]
       },
       {
-        "heading": "2. How we use your data",
+        "heading": "2. Comment nous utilisons vos données",
         "body": [
-          "Your data is used solely to locate the relevant transaction, verify your request and process your refund.",
-          "We never sell your personal data to third parties."
+          "Vos données sont utilisées uniquement pour retrouver la transaction concernée, vérifier votre demande et effectuer votre remboursement.",
+          "Nous ne vendons jamais vos données personnelles à des tiers."
         ]
       },
       {
-        "heading": "3. Data storage and security",
+        "heading": "3. Conservation et sécurité des données",
         "body": [
-          "Uploaded documents are stored privately and access is restricted to the support staff handling your request.",
-          "Data is retained only for as long as necessary to process your refund and meet our legal obligations."
+          "Les documents téléversés sont stockés de manière privée et leur accès est réservé aux membres du support en charge de votre demande.",
+          "Les données ne sont conservées que le temps nécessaire au traitement de votre remboursement et au respect de nos obligations légales."
         ]
       },
       {
-        "heading": "4. Your rights",
+        "heading": "4. Vos droits",
         "body": [
-          "You may request access to, correction of, or deletion of your personal data at any time by contacting us.",
-          "You also have the right to lodge a complaint with your local data-protection authority."
+          "Vous pouvez à tout moment demander l'accès, la rectification ou la suppression de vos données personnelles en nous contactant.",
+          "Vous avez également le droit d'introduire une réclamation auprès de votre autorité de protection des données (CNIL)."
         ]
       }
     ]
   },
   "confidentiality": {
-    "title": "Confidentiality",
-    "subtitle": "Our commitment to keeping your information private.",
+    "title": "Confidentialité",
+    "subtitle": "Notre engagement à préserver la confidentialité de vos informations.",
     "updatedAt": "2026-01-01",
     "sections": [
       {
-        "heading": "Confidential handling",
+        "heading": "Traitement confidentiel",
         "body": [
-          "All information you share with us as part of a refund request is treated as strictly confidential.",
-          "Only authorised members of our support team can view the details and documents attached to your request."
+          "Toutes les informations que vous nous transmettez dans le cadre d'une demande de remboursement sont traitées de manière strictement confidentielle.",
+          "Seuls les membres autorisés de notre équipe de support peuvent consulter les informations et les documents joints à votre demande."
         ]
       },
       {
-        "heading": "Secure transmission",
+        "heading": "Transmission sécurisée",
         "body": [
-          "Your submission is transmitted over an encrypted connection and your files are uploaded to private storage.",
-          "We apply the principle of least privilege: staff only access what they need to resolve your case."
+          "Votre demande est transmise via une connexion chiffrée et vos fichiers sont téléversés vers un espace de stockage privé.",
+          "Nous appliquons le principe du moindre privilège : le personnel n'accède qu'aux informations nécessaires au traitement de votre dossier."
         ]
       },
       {
-        "heading": "No unsolicited contact",
+        "heading": "Aucune sollicitation",
         "body": [
-          "We will only contact you regarding your refund request. We do not use your details for marketing without your explicit consent."
+          "Nous ne vous contacterons qu'au sujet de votre demande de remboursement. Vos coordonnées ne sont jamais utilisées à des fins marketing sans votre consentement explicite."
         ]
       }
     ]
   },
   "footer": {
-    "tagline": "Secure refund processing you can trust.",
+    "tagline": "Un traitement des remboursements sécurisé et fiable.",
     "links": [
       {
-        "label": "Home",
+        "label": "Accueil",
         "href": "/"
       },
       {
@@ -169,14 +157,14 @@
         "href": "/contact"
       },
       {
-        "label": "Privacy Policy",
+        "label": "Politique de confidentialité",
         "href": "/privacy"
       },
       {
-        "label": "Confidentiality",
+        "label": "Confidentialité",
         "href": "/confidentiality"
       }
     ],
-    "legalNote": "© 2026 RefundGuard. All rights reserved."
+    "legalNote": "© 2026 88195.fr. Tous droits réservés."
   }
 }
