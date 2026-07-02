@@ -5,19 +5,31 @@
     "logoAlt": "RefundGuard"
   },
   "hubspot": {
-    "pipeline": "",
-    "stage": "",
-    "owner": "",
-    "priority": "",
+    "pipeline": "3755488491",
+    "stage": "5232742619",
+    "owner": "33535381",
+    "priority": "MEDIUM",
     "routingProp": "",
-    "routingValue": "",
+    "routingValue": "812056.fr",
     "operatorProp": ""
   },
   "nav": [
-    { "label": "Home", "href": "/" },
-    { "label": "Contact", "href": "/contact" },
-    { "label": "Privacy Policy", "href": "/privacy" },
-    { "label": "Confidentiality", "href": "/confidentiality" }
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    },
+    {
+      "label": "Privacy Policy",
+      "href": "/privacy"
+    },
+    {
+      "label": "Confidentiality",
+      "href": "/confidentiality"
+    }
   ],
   "meta": {
     "title": "RefundGuard — Claim your refund",
@@ -59,10 +71,28 @@
       "If you have a question about an existing request or need help submitting one, reach out using the details below and our support team will get back to you."
     ],
     "channels": [
-      { "type": "email", "label": "Email", "value": "support@refundguard.example", "href": "mailto:support@refundguard.example" },
-      { "type": "phone", "label": "Phone", "value": "+1 (555) 010-2030", "href": "tel:+15550102030" },
-      { "type": "hours", "label": "Support hours", "value": "Monday–Friday, 9:00–18:00" },
-      { "type": "address", "label": "Address", "value": "123 Market Street, Suite 400, Springfield" }
+      {
+        "type": "email",
+        "label": "Email",
+        "value": "support@refundguard.example",
+        "href": "mailto:support@refundguard.example"
+      },
+      {
+        "type": "phone",
+        "label": "Phone",
+        "value": "+1 (555) 010-2030",
+        "href": "tel:+15550102030"
+      },
+      {
+        "type": "hours",
+        "label": "Support hours",
+        "value": "Monday–Friday, 9:00–18:00"
+      },
+      {
+        "type": "address",
+        "label": "Address",
+        "value": "123 Market Street, Suite 400, Springfield"
+      }
     ]
   },
   "privacy": {
@@ -130,10 +160,22 @@
   "footer": {
     "tagline": "Secure refund processing you can trust.",
     "links": [
-      { "label": "Home", "href": "/" },
-      { "label": "Contact", "href": "/contact" },
-      { "label": "Privacy Policy", "href": "/privacy" },
-      { "label": "Confidentiality", "href": "/confidentiality" }
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      },
+      {
+        "label": "Confidentiality",
+        "href": "/confidentiality"
+      }
     ],
     "legalNote": "© 2026 RefundGuard. All rights reserved."
   }
