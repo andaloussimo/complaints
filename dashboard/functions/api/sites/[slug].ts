@@ -1,5 +1,6 @@
-// GET /api/sites/:slug  -> content.json + theme.json (+ SHAs for updates)
-// PUT /api/sites/:slug  -> commit edited content/theme (triggers deploy.yml)
+// GET    /api/sites/:slug -> content.json + theme.json (+ SHAs for updates)
+// PUT    /api/sites/:slug -> commit edited content/theme (triggers deploy.yml)
+// DELETE /api/sites/:slug -> dispatch delete-site.yml (removes folder + CF project)
 import { githubFromEnv } from "../../../src/lib/github";
 import { validateContent, validateTheme, normalizeContent } from "../../../src/lib/validate";
 import { json, guard } from "../../../src/lib/http";
@@ -62,6 +63,23 @@ export async function onRequestPut(context: {
       `dashboard: update ${slug} theme`,
       body.themeSha,
     );
+    return json({ ok: true });
+  });
+}
+
+export async function onRequestDelete(context: {
+  env: Env;
+  params: { slug: string };
+}): Promise<Response> {
+  return guard(async () => {
+    const slug = String(context.params.slug);
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) {
+      return json({ error: "Invalid site id" }, 400);
+    }
+    const gh = githubFromEnv(context.env);
+    // The workflow removes sites/<slug>/ from the repo and deletes the
+    // Cloudflare Pages project — one irreversible action, same pattern as create.
+    await gh.dispatchWorkflow("delete-site.yml", { slug });
     return json({ ok: true });
   });
 }

@@ -47,6 +47,11 @@ export async function saveSite(
   );
 }
 
+/** Dispatches delete-site.yml: removes sites/<slug>/ AND the Cloudflare project. */
+export async function deleteSite(slug: string): Promise<void> {
+  await jsonOrThrow(await fetch(`/api/sites/${slug}`, { method: "DELETE" }));
+}
+
 export async function uploadLogo(slug: string, file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);

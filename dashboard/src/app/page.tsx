@@ -1,23 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Banner, Button, Card, Skeleton, SiteAvatar } from "@/components/ui";
-import { getProject, getStatus, listSites, type RunStatus } from "@/lib/api";
+import { Banner, Button, Card, Skeleton, SiteAvatar, TextInput } from "@/components/ui";
+import { useToast } from "@/components/toast";
+import { deleteSite, getProject, getStatus, listSites, type RunStatus } from "@/lib/api";
 import type { SiteSummary } from "@/lib/types";
 
 export default function SitesPage() {
   const [sites, setSites] = useState<SiteSummary[] | null>(null);
   const [runs, setRuns] = useState<RunStatus[]>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
+  const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<SiteSummary | null>(null);
+  const [deleting, setDeleting] = useState<Set<string>>(new Set());
+  const { push } = useToast();
 
   useEffect(() => {
     listSites()
       .then((list) => {
         setSites(list);
-        // Resolve each project's real pages.dev URL (the slug is only a guess —
-        // Cloudflare suffixes the subdomain when the name is taken globally).
+        // Resolve each project's real pages.dev URL (slug-based URLs are only a guess).
         list.forEach((s) => {
           getProject(s.slug)
             .then((p) => {
@@ -30,9 +34,41 @@ export default function SitesPage() {
     getStatus().then(setRuns).catch(() => {});
   }, []);
 
+  const filtered = useMemo(() => {
+    if (!sites) return null;
+    const q = query.trim().toLowerCase();
+    if (!q) return sites;
+    return sites.filter(
+      (s) =>
+        s.slug.toLowerCase().includes(q) ||
+        s.brand.toLowerCase().includes(q) ||
+        (s.siteUrl ?? "").toLowerCase().includes(q),
+    );
+  }, [sites, query]);
+
+  async function confirmDelete(site: SiteSummary) {
+    setToDelete(null);
+    setDeleting((d) => new Set(d).add(site.slug));
+    try {
+      await deleteSite(site.slug);
+      push(
+        "success",
+        `Deleting ${site.brand}`,
+        "The site folder and Cloudflare project are being removed — done in about a minute.",
+      );
+    } catch (e) {
+      setDeleting((d) => {
+        const next = new Set(d);
+        next.delete(site.slug);
+        return next;
+      });
+      push("error", "Delete failed", e instanceof Error ? e.message : undefined);
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Sites</h1>
           <p className="mt-0.5 text-sm text-gray-500">
@@ -58,21 +94,42 @@ export default function SitesPage() {
         </Banner>
       ) : null}
 
-      {sites === null && !error ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[0, 1].map((i) => (
-            <Card key={i}>
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-              </div>
-              <Skeleton className="mt-4 h-3 w-40" />
-            </Card>
-          ))}
+      {/* Search — the list stays usable at 30+ sites */}
+      {sites && sites.length > 0 ? (
+        <div className="relative">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+          >
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.6" />
+            <path d="m11 11 3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <TextInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, slug or domain…"
+            className="pl-10"
+          />
         </div>
+      ) : null}
+
+      {sites === null && !error ? (
+        <Card className="divide-y divide-gray-100 p-0">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+              <Skeleton className="h-9 w-9" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-3.5 w-36" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <Skeleton className="h-8 w-40" />
+            </div>
+          ))}
+        </Card>
       ) : null}
 
       {sites && sites.length === 0 ? (
@@ -85,49 +142,78 @@ export default function SitesPage() {
         </Card>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {sites?.map((s) => (
-          <Card key={s.slug} className="transition hover:border-gray-300 hover:shadow-md hover:shadow-gray-900/[0.04]">
-            <div className="flex items-start gap-3">
-              <SiteAvatar name={s.brand} />
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate font-semibold text-gray-900">{s.brand}</h2>
-                <p className="text-xs text-gray-400">{s.slug}</p>
+      {filtered && filtered.length === 0 && sites && sites.length > 0 ? (
+        <Card className="py-8 text-center text-sm text-gray-500">
+          No site matches “{query}”.
+        </Card>
+      ) : null}
+
+      {filtered && filtered.length > 0 ? (
+        <Card className="divide-y divide-gray-100 p-0">
+          {filtered.map((s) => {
+            const isDeleting = deleting.has(s.slug);
+            return (
+              <div
+                key={s.slug}
+                className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 transition hover:bg-gray-50/70 ${isDeleting ? "opacity-50" : ""}`}
+              >
+                <SiteAvatar name={s.brand} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate font-semibold text-gray-900">{s.brand}</p>
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                      {s.formLang}
+                    </span>
+                    {isDeleting ? (
+                      <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-600">
+                        deleting…
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="truncate text-xs text-gray-400">
+                    {s.slug}
+                    {s.siteUrl ? <> · {s.siteUrl.replace(/^https?:\/\//, "")}</> : null}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <Link href={`/edit?site=${s.slug}`}>
+                    <Button variant="ghost" className="px-3 py-1.5 text-xs" disabled={isDeleting}>
+                      Edit
+                    </Button>
+                  </Link>
+                  <a
+                    href={previews[s.slug] ?? `https://${s.slug}.pages.dev`}
+                    target="_blank"
+                    rel="noopener"
+                    title={previews[s.slug] ? undefined : "Best guess — set CLOUDFLARE_API_TOKEN on the dashboard to resolve the real URL"}
+                  >
+                    <Button variant="ghost" className="px-3 py-1.5 text-xs" disabled={isDeleting}>
+                      Preview
+                    </Button>
+                  </a>
+                  <button
+                    onClick={() => setToDelete(s)}
+                    disabled={isDeleting}
+                    className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:pointer-events-none"
+                    aria-label={`Delete ${s.brand}`}
+                    title="Delete site"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
+                      <path
+                        d="M2.5 4h11M6.5 4V2.8c0-.4.3-.8.8-.8h1.4c.5 0 .8.4.8.8V4m3 0-.5 9.2c0 .4-.4.8-.8.8H4.8c-.4 0-.8-.4-.8-.8L3.5 4M6.5 7v4M9.5 7v4"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                {s.formLang}
-              </span>
-            </div>
-            {s.siteUrl ? (
-              <a
-                href={s.siteUrl}
-                target="_blank"
-                rel="noopener"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm text-brand hover:underline"
-              >
-                {s.siteUrl.replace(/^https?:\/\//, "")}
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
-                  <path d="M4 2h6v6M10 2 5 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-            ) : null}
-            <div className="mt-4 flex gap-2 border-t border-gray-100 pt-4">
-              <Link href={`/edit?site=${s.slug}`} className="flex-1">
-                <Button variant="ghost" className="w-full">Edit</Button>
-              </Link>
-              <a
-                href={previews[s.slug] ?? `https://${s.slug}.pages.dev`}
-                target="_blank"
-                rel="noopener"
-                className="flex-1"
-                title={previews[s.slug] ? undefined : "Best guess — set CLOUDFLARE_API_TOKEN on the dashboard to resolve the real URL"}
-              >
-                <Button variant="ghost" className="w-full">Preview</Button>
-              </a>
-            </div>
-          </Card>
-        ))}
-      </div>
+            );
+          })}
+        </Card>
+      ) : null}
 
       {runs.length ? (
         <div>
@@ -156,6 +242,57 @@ export default function SitesPage() {
           </Card>
         </div>
       ) : null}
+
+      {toDelete ? (
+        <DeleteModal site={toDelete} onCancel={() => setToDelete(null)} onConfirm={() => confirmDelete(toDelete)} />
+      ) : null}
+    </div>
+  );
+}
+
+/** Type-to-confirm destructive modal (deletes the repo folder + CF project). */
+function DeleteModal({
+  site,
+  onCancel,
+  onConfirm,
+}: {
+  site: SiteSummary;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [typed, setTyped] = useState("");
+  const match = typed.trim() === site.slug;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-sm" onClick={onCancel}>
+      <div
+        className="toast-in w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
+        <h2 className="text-lg font-bold text-gray-900">Delete {site.brand}?</h2>
+        <p className="mt-2 text-sm leading-relaxed text-gray-600">
+          This permanently removes <code className="rounded bg-gray-100 px-1">sites/{site.slug}/</code> from the
+          repo <em>and</em> deletes the <code className="rounded bg-gray-100 px-1">{site.slug}</code> Cloudflare
+          Pages project. The live site goes offline. This cannot be undone from the dashboard.
+        </p>
+        <p className="mt-4 text-sm font-medium text-gray-700">
+          Type <span className="font-mono text-red-600">{site.slug}</span> to confirm:
+        </p>
+        <TextInput
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          placeholder={site.slug}
+          className="mt-2"
+          autoFocus
+        />
+        <div className="mt-5 flex justify-end gap-3">
+          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+          <Button variant="danger" disabled={!match} onClick={onConfirm}>
+            Delete site
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

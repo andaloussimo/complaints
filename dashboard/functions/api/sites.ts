@@ -14,22 +14,27 @@ export async function onRequestGet(context: { env: Env }): Promise<Response> {
       .filter((e) => e.type === "dir" && !e.name.startsWith("_"))
       .map((e) => e.name);
 
-    const sites: SiteSummary[] = [];
-    for (const slug of slugs) {
-      const f = await gh.getFile(`sites/${slug}/content.json`);
-      if (!f) continue;
-      try {
-        const c = JSON.parse(f.text);
-        sites.push({
-          slug,
-          brand: c.brand?.name ?? slug,
-          siteUrl: c.meta?.siteUrl,
-          formLang: c.meta?.formLang ?? "en",
-        });
-      } catch {
-        sites.push({ slug, brand: slug, formLang: "en" });
-      }
-    }
+    // Fetch all summaries in parallel — sequential fetching would make the
+    // list crawl once there are dozens of sites.
+    const sites = (
+      await Promise.all(
+        slugs.map(async (slug): Promise<SiteSummary | null> => {
+          const f = await gh.getFile(`sites/${slug}/content.json`).catch(() => null);
+          if (!f) return null;
+          try {
+            const c = JSON.parse(f.text);
+            return {
+              slug,
+              brand: c.brand?.name ?? slug,
+              siteUrl: c.meta?.siteUrl,
+              formLang: c.meta?.formLang ?? "en",
+            };
+          } catch {
+            return { slug, brand: slug, formLang: "en" };
+          }
+        }),
+      )
+    ).filter((s): s is SiteSummary => s !== null);
     return json({ sites });
   });
 }
