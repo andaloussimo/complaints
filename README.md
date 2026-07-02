@@ -110,6 +110,15 @@ and apply the form inputs. Prerequisite repo secrets (set once): `CLOUDFLARE_API
 To refine copy later, edit `sites/<slug>/content.json` in GitHub's web editor and commit —
 the deploy matrix ships the change.
 
+### Add a new site — with Claude (AI-written content)
+
+For a site whose **copy is written for you** (any supported language, tailored to the
+case), open Claude Code in this repo and run `/generate-site` (or just ask to "create a
+new site"). Claude interviews you — brand, domain, language, what the refunds are for,
+contact details — then writes the full content (hero, legal pages, form intro),
+generates `sites/<slug>/`, verifies the build, and pushes so the pipeline deploys it.
+Defined in [.claude/skills/generate-site/SKILL.md](.claude/skills/generate-site/SKILL.md).
+
 ### Add a new site — manually (CLI)
 
 ```bash
