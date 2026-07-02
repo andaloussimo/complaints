@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Banner, Button, Card, Field, Select, Spinner, TextInput } from "@/components/ui";
 import { HubSpotFields } from "@/components/HubSpotFields";
 import { useToast } from "@/components/toast";
-import { createSite, getRunProgress, getStatus, type RunProgress } from "@/lib/api";
+import { createSite, getProject, getRunProgress, getStatus, type RunProgress } from "@/lib/api";
 import { validateCreateInput } from "@/lib/validate";
 import { LANGS, type CreateSiteInput } from "@/lib/types";
 
@@ -161,7 +161,19 @@ function CreationTracker({
   const [phase, setPhase] = useState<Phase>("finding");
   const [progress, setProgress] = useState<RunProgress | null>(null);
   const [runUrl, setRunUrl] = useState<string | null>(null);
+  // Best guess until Cloudflare tells us the real subdomain (pages.dev names
+  // are globally unique, so the slug-based URL isn't guaranteed).
+  const [liveUrl, setLiveUrl] = useState(`https://${slug}.pages.dev`);
   const runId = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (phase !== "success") return;
+    getProject(slug)
+      .then((p) => {
+        if (p.url) setLiveUrl(p.url);
+      })
+      .catch(() => {});
+  }, [phase, slug]);
 
   useEffect(() => {
     let stopped = false;
@@ -215,8 +227,6 @@ function CreationTracker({
       timers.forEach(clearTimeout);
     };
   }, [dispatchedAt]);
-
-  const liveUrl = `https://${slug}.pages.dev`;
 
   return (
     <div className="mx-auto max-w-xl space-y-5">
@@ -297,7 +307,7 @@ function CreationTracker({
           {phase === "success" ? (
             <>
               <a href={liveUrl} target="_blank" rel="noopener">
-                <Button>Open {slug}.pages.dev</Button>
+                <Button>Open {liveUrl.replace(/^https?:\/\//, "")}</Button>
               </a>
               <Link href={`/edit?site=${slug}`}>
                 <Button variant="ghost">Edit site</Button>

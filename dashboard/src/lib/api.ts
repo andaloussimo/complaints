@@ -80,6 +80,18 @@ export async function getRunProgress(id: number): Promise<RunProgress> {
   return (await jsonOrThrow(await fetch(`/api/runs/${id}`))) as RunProgress;
 }
 
+export interface ProjectInfo {
+  configured: boolean;
+  exists?: boolean;
+  url?: string;
+  domains?: string[];
+}
+
+/** Real Cloudflare Pages URL for a project (pages.dev subdomains can differ from the slug). */
+export async function getProject(name: string): Promise<ProjectInfo> {
+  return (await jsonOrThrow(await fetch(`/api/projects/${name}`))) as ProjectInfo;
+}
+
 export async function getHubSpotMeta(): Promise<HubSpotMeta> {
   return (await jsonOrThrow(await fetch("/api/hubspot"))) as HubSpotMeta;
 }

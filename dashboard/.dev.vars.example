@@ -4,3 +4,7 @@ GITHUB_TOKEN=
 GITHUB_REPO=andaloussimo/complaints
 # Optional: HubSpot Private App token — enables live pipeline/owner dropdowns.
 HUBSPOT_TOKEN=
+# Optional: lets the dashboard resolve real pages.dev URLs (Preview buttons /
+# success links). Same values as the GitHub repo secrets.
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_ACCOUNT_ID=

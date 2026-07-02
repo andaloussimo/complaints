@@ -3,16 +3,30 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Banner, Button, Card, Skeleton, SiteAvatar } from "@/components/ui";
-import { getStatus, listSites, type RunStatus } from "@/lib/api";
+import { getProject, getStatus, listSites, type RunStatus } from "@/lib/api";
 import type { SiteSummary } from "@/lib/types";
 
 export default function SitesPage() {
   const [sites, setSites] = useState<SiteSummary[] | null>(null);
   const [runs, setRuns] = useState<RunStatus[]>([]);
+  const [previews, setPreviews] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listSites().then(setSites).catch((e) => setError(e.message));
+    listSites()
+      .then((list) => {
+        setSites(list);
+        // Resolve each project's real pages.dev URL (the slug is only a guess —
+        // Cloudflare suffixes the subdomain when the name is taken globally).
+        list.forEach((s) => {
+          getProject(s.slug)
+            .then((p) => {
+              if (p.url) setPreviews((prev) => ({ ...prev, [s.slug]: p.url! }));
+            })
+            .catch(() => {});
+        });
+      })
+      .catch((e) => setError(e.message));
     getStatus().then(setRuns).catch(() => {});
   }, []);
 
@@ -101,7 +115,13 @@ export default function SitesPage() {
               <Link href={`/edit?site=${s.slug}`} className="flex-1">
                 <Button variant="ghost" className="w-full">Edit</Button>
               </Link>
-              <a href={`https://${s.slug}.pages.dev`} target="_blank" rel="noopener" className="flex-1">
+              <a
+                href={previews[s.slug] ?? `https://${s.slug}.pages.dev`}
+                target="_blank"
+                rel="noopener"
+                className="flex-1"
+                title={previews[s.slug] ? undefined : "Best guess — set CLOUDFLARE_API_TOKEN on the dashboard to resolve the real URL"}
+              >
                 <Button variant="ghost" className="w-full">Preview</Button>
               </a>
             </div>
