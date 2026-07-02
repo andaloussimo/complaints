@@ -33,7 +33,8 @@ export function HubSpotFields({
 
   const live = !!meta?.configured && (meta?.pipelines.length ?? 0) > 0;
   const pipeline = meta?.pipelines.find((p) => p.id === value.pipeline);
-  const selectCls = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm";
+  const selectCls =
+    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
 
   return (
     <>

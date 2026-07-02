@@ -55,6 +55,7 @@ export async function uploadLogo(slug: string, file: File): Promise<string> {
 }
 
 export interface RunStatus {
+  id: number;
   name: string;
   status: string;
   conclusion: string | null;
@@ -62,9 +63,21 @@ export interface RunStatus {
   html_url: string;
 }
 
-export async function getStatus(): Promise<RunStatus[]> {
-  const data = await jsonOrThrow(await fetch("/api/status"));
+export async function getStatus(workflow?: string): Promise<RunStatus[]> {
+  const qs = workflow ? `?workflow=${encodeURIComponent(workflow)}` : "";
+  const data = await jsonOrThrow(await fetch(`/api/status${qs}`));
   return (data as { runs: RunStatus[] }).runs;
+}
+
+export interface RunProgress {
+  status: string;
+  conclusion: string | null;
+  html_url: string;
+  steps: Array<{ name: string; status: string; conclusion: string | null }>;
+}
+
+export async function getRunProgress(id: number): Promise<RunProgress> {
+  return (await jsonOrThrow(await fetch(`/api/runs/${id}`))) as RunProgress;
 }
 
 export async function getHubSpotMeta(): Promise<HubSpotMeta> {

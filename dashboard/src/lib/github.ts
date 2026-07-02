@@ -118,16 +118,21 @@ export class GitHub {
     }
   }
 
-  async recentRuns(perPage = 15): Promise<
-    Array<{ name: string; status: string; conclusion: string | null; created_at: string; html_url: string }>
+  /** Recent workflow runs; optionally scoped to one workflow file. */
+  async recentRuns(
+    perPage = 15,
+    workflowFile?: string,
+  ): Promise<
+    Array<{ id: number; name: string; status: string; conclusion: string | null; created_at: string; html_url: string }>
   > {
-    const res = await this.api(
-      "GET",
-      `/repos/${this.cfg.repo}/actions/runs?per_page=${perPage}`,
-    );
+    const base = workflowFile
+      ? `/repos/${this.cfg.repo}/actions/workflows/${workflowFile}/runs`
+      : `/repos/${this.cfg.repo}/actions/runs`;
+    const res = await this.api("GET", `${base}?per_page=${perPage}`);
     if (!res.ok) throw new Error(`recentRuns: ${res.status}`);
     const data = (await res.json()) as {
       workflow_runs: Array<{
+        id: number;
         name: string;
         status: string;
         conclusion: string | null;
@@ -136,12 +141,39 @@ export class GitHub {
       }>;
     };
     return data.workflow_runs.map((r) => ({
+      id: r.id,
       name: r.name,
       status: r.status,
       conclusion: r.conclusion,
       created_at: r.created_at,
       html_url: r.html_url,
     }));
+  }
+
+  /** One run's status + its jobs with per-step progress (for live trackers). */
+  async runProgress(runId: number): Promise<{
+    status: string;
+    conclusion: string | null;
+    html_url: string;
+    steps: Array<{ name: string; status: string; conclusion: string | null }>;
+  }> {
+    const [runRes, jobsRes] = await Promise.all([
+      this.api("GET", `/repos/${this.cfg.repo}/actions/runs/${runId}`),
+      this.api("GET", `/repos/${this.cfg.repo}/actions/runs/${runId}/jobs`),
+    ]);
+    if (!runRes.ok) throw new Error(`run ${runId}: ${runRes.status}`);
+    const run = (await runRes.json()) as { status: string; conclusion: string | null; html_url: string };
+    const jobs = jobsRes.ok
+      ? ((await jobsRes.json()) as {
+          jobs: Array<{ steps?: Array<{ name: string; status: string; conclusion: string | null }> }>;
+        }).jobs
+      : [];
+    // Flatten all jobs' steps, dropping runner plumbing (Set up/Complete job, checkout, post-* steps).
+    const NOISE = /^(Set up job|Complete job|Post |Checkout|Run actions\/)/i;
+    const steps = jobs
+      .flatMap((j) => j.steps ?? [])
+      .filter((s) => !NOISE.test(s.name));
+    return { status: run.status, conclusion: run.conclusion, html_url: run.html_url, steps };
   }
 }
 

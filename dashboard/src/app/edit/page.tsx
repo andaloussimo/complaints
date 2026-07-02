@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Banner, Button, Card, Field, TextArea, TextInput } from "@/components/ui";
+import { Banner, Button, Card, Field, Select, Spinner, TextArea, TextInput } from "@/components/ui";
 import { HubSpotFields } from "@/components/HubSpotFields";
+import { useToast } from "@/components/toast";
 import { getSite, saveSite, uploadLogo, type SiteDetail } from "@/lib/api";
 import { hexToRgbTriplet, rgbTripletToHex, validateContent, validateTheme } from "@/lib/validate";
 import { LANGS, type SiteContent, type SiteTheme } from "@/lib/types";
@@ -14,8 +15,8 @@ export default function EditPage() {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [theme, setTheme] = useState<SiteTheme | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { push } = useToast();
 
   useEffect(() => {
     const s = new URLSearchParams(window.location.search).get("site");
@@ -60,9 +61,9 @@ export default function EditPage() {
         c.brand.logo = name;
         c.brand.logoAlt = c.brand.logoAlt ?? c.brand.name;
       });
-      setNotice(`Logo uploaded (${name}) and committed. It will show after the next build.`);
+      push("success", "Logo uploaded", `${name} committed — it shows after the next build.`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Logo upload failed");
+      push("error", "Logo upload failed", e instanceof Error ? e.message : undefined);
     } finally {
       setBusy(false);
     }
@@ -71,11 +72,18 @@ export default function EditPage() {
   async function save() {
     if (!slug || !detail || !content || !theme) return;
     setError(null);
-    setNotice(null);
     const cv = validateContent(content);
-    if (!cv.ok) return setError(cv.error);
+    if (!cv.ok) {
+      setError(cv.error);
+      push("error", "Check the form", cv.error);
+      return;
+    }
     const tv = validateTheme(theme);
-    if (!tv.ok) return setError(tv.error);
+    if (!tv.ok) {
+      setError(tv.error);
+      push("error", "Check the theme", tv.error);
+      return;
+    }
     setBusy(true);
     try {
       await saveSite(slug, {
@@ -84,9 +92,9 @@ export default function EditPage() {
         theme,
         themeSha: detail.themeSha,
       });
-      setNotice("Saved. A rebuild is running — changes go live in a minute or two.");
+      push("success", "Saved & publishing", "A rebuild is running — changes go live in a minute or two.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      push("error", "Save failed", e instanceof Error ? e.message : undefined);
     } finally {
       setBusy(false);
     }
@@ -112,7 +120,6 @@ export default function EditPage() {
       </div>
 
       {error ? <Banner kind="error">{error}</Banner> : null}
-      {notice ? <Banner kind="ok">{notice}</Banner> : null}
 
       {/* Brand + logo */}
       <Card className="space-y-4">
@@ -143,13 +150,12 @@ export default function EditPage() {
             <TextInput value={content.meta.siteUrl ?? ""} onChange={(e) => patchContent((c) => { c.meta.siteUrl = e.target.value; })} />
           </Field>
           <Field label="Form language">
-            <select
+            <Select
               value={content.meta.formLang}
               onChange={(e) => patchContent((c) => { c.meta.formLang = e.target.value; })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
             >
               {LANGS.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
+            </Select>
           </Field>
           <Field label="Operator code (HubSpot)">
             <TextInput value={content.home.operatorCode ?? ""} onChange={(e) => patchContent((c) => { c.home.operatorCode = e.target.value; })} />
@@ -238,9 +244,20 @@ export default function EditPage() {
       {/* Advanced raw JSON (legal pages, footer, nav, etc.) */}
       <AdvancedJson content={content} onParsed={setContent} />
 
-      <div className="sticky bottom-4 flex gap-3">
-        <Button onClick={save} disabled={busy}>{busy ? "Saving…" : "Save & publish"}</Button>
+      <div className="sticky bottom-4 z-30 flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white/90 p-3 shadow-lg shadow-gray-900/5 backdrop-blur">
+        <Button onClick={save} disabled={busy}>
+          {busy ? (
+            <>
+              <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" /> Saving…
+            </>
+          ) : (
+            "Save & publish"
+          )}
+        </Button>
         <Link href="/"><Button variant="ghost">Cancel</Button></Link>
+        <span className="ml-auto hidden text-xs text-gray-400 sm:block">
+          Publishing rebuilds the site — live in ~2 min
+        </span>
       </div>
     </div>
   );
