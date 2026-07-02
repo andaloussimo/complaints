@@ -1,0 +1,169 @@
+{
+  "brand": {
+    "name": "78869",
+    "logoAlt": "78869"
+  },
+  "hubspot": {
+    "pipeline": "3755488491",
+    "stage": "5232742620",
+    "owner": "33535381",
+    "priority": "MEDIUM",
+    "routingProp": "",
+    "routingValue": "",
+    "operatorProp": ""
+  },
+  "nav": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    },
+    {
+      "label": "Privacy Policy",
+      "href": "/privacy"
+    },
+    {
+      "label": "Confidentiality",
+      "href": "/confidentiality"
+    }
+  ],
+  "meta": {
+    "title": "78869 — Claim your refund",
+    "description": "Submit a secure refund request in minutes. We locate your transaction and process your refund to the correct account.",
+    "locale": "en",
+    "formLang": "pt",
+    "siteUrl": "https://78869.fr"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Fast, secure refunds",
+      "title": "Get the refund you're owed",
+      "subtitle": "Fill in the form below with your details and proof of payment. Our team locates the transaction and issues your refund to the correct account.",
+      "highlights": [
+        "Processed by a dedicated support team",
+        "Your data is encrypted and protected",
+        "Refund issued directly to your IBAN"
+      ]
+    },
+    "formTitle": "Request a refund",
+    "formIntro": "It only takes a couple of minutes. Have your invoice and bank details (IBAN) ready.",
+    "operatorCode": "78869",
+    "trust": [
+      {
+        "heading": "How it works",
+        "body": [
+          "1. Enter your phone number, email and bank details.",
+          "2. Upload your invoice and proof of bank details.",
+          "3. Confirm and submit — we open a ticket and get to work."
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "We're here to help with your refund request.",
+    "intro": [
+      "If you have a question about an existing request or need help submitting one, reach out using the details below and our support team will get back to you."
+    ],
+    "channels": [
+      {
+        "type": "email",
+        "label": "Email",
+        "value": "andaloussi@invisionpixels.net",
+        "href": "mailto:andaloussi@invisionpixels.net"
+      },
+      {
+        "type": "hours",
+        "label": "Support hours",
+        "value": "Monday–Friday, 9:00–18:00"
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "How we collect, use and protect your personal data.",
+    "updatedAt": "2026-01-01",
+    "sections": [
+      {
+        "heading": "1. Data we collect",
+        "body": [
+          "When you submit a refund request we collect the phone number, email address and bank details (IBAN) you provide, together with any invoice or documents you upload.",
+          "We also collect basic technical information such as your IP address for security and fraud-prevention purposes."
+        ]
+      },
+      {
+        "heading": "2. How we use your data",
+        "body": [
+          "Your data is used solely to locate the relevant transaction, verify your request and process your refund.",
+          "We never sell your personal data to third parties."
+        ]
+      },
+      {
+        "heading": "3. Data storage and security",
+        "body": [
+          "Uploaded documents are stored privately and access is restricted to the support staff handling your request.",
+          "Data is retained only for as long as necessary to process your refund and meet our legal obligations."
+        ]
+      },
+      {
+        "heading": "4. Your rights",
+        "body": [
+          "You may request access to, correction of, or deletion of your personal data at any time by contacting us.",
+          "You also have the right to lodge a complaint with your local data-protection authority."
+        ]
+      }
+    ]
+  },
+  "confidentiality": {
+    "title": "Confidentiality",
+    "subtitle": "Our commitment to keeping your information private.",
+    "updatedAt": "2026-01-01",
+    "sections": [
+      {
+        "heading": "Confidential handling",
+        "body": [
+          "All information you share with us as part of a refund request is treated as strictly confidential.",
+          "Only authorised members of our support team can view the details and documents attached to your request."
+        ]
+      },
+      {
+        "heading": "Secure transmission",
+        "body": [
+          "Your submission is transmitted over an encrypted connection and your files are uploaded to private storage.",
+          "We apply the principle of least privilege: staff only access what they need to resolve your case."
+        ]
+      },
+      {
+        "heading": "No unsolicited contact",
+        "body": [
+          "We will only contact you regarding your refund request. We do not use your details for marketing without your explicit consent."
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "tagline": "Secure refund processing you can trust.",
+    "links": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      },
+      {
+        "label": "Confidentiality",
+        "href": "/confidentiality"
+      }
+    ],
+    "legalNote": "© 2026 78869. All rights reserved."
+  }
+}

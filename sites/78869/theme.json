@@ -1,0 +1,17 @@
+{
+  "colors": {
+    "brand": "255 149 92",
+    "brandFg": "255 255 255",
+    "accent": "40 167 69",
+    "accentFg": "255 255 255",
+    "surface": "255 255 255",
+    "muted": "247 249 251",
+    "ink": "31 41 55",
+    "line": "226 232 240",
+    "success": "30 126 52",
+    "danger": "176 42 55"
+  },
+  "radius": "8px",
+  "fontFamily": "Inter, system-ui, sans-serif",
+  "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+}
