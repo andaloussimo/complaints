@@ -1,7 +1,8 @@
 {
   "brand": {
     "name": "88195.fr",
-    "logoAlt": "88195.fr"
+    "logoAlt": "88195.fr",
+    "logo": "logo.png"
   },
   "hubspot": {
     "pipeline": "3755488491",
