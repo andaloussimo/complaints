@@ -2,4 +2,6 @@
 export interface Env {
   GITHUB_TOKEN?: string;
   GITHUB_REPO?: string; // "owner/name"
+  /** Optional: enables live pipeline/owner dropdowns in the routing forms. */
+  HUBSPOT_TOKEN?: string;
 }

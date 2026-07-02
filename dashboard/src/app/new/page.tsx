@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Banner, Button, Card, Field, TextInput } from "@/components/ui";
+import { HubSpotFields } from "@/components/HubSpotFields";
 import { createSite } from "@/lib/api";
 import { validateCreateInput } from "@/lib/validate";
 import { LANGS, type CreateSiteInput } from "@/lib/types";
@@ -16,6 +17,7 @@ const EMPTY: CreateSiteInput = {
   email: "",
   phone: "",
   operator: "",
+  hubspot: {},
 };
 
 export default function NewSitePage() {
@@ -115,6 +117,17 @@ export default function NewSitePage() {
           <Field label="Support phone (optional)">
             <TextInput value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+1 555 010 2030" />
           </Field>
+        </div>
+        <div className="border-t border-gray-100 pt-4">
+          <h2 className="mb-1 font-semibold text-gray-900">HubSpot routing (optional)</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            Where this site&apos;s refund tickets land. Leave empty to use the shared defaults —
+            you can change all of this later from the Edit page.
+          </p>
+          <HubSpotFields
+            value={form.hubspot ?? {}}
+            onChange={(next) => set("hubspot", next)}
+          />
         </div>
         <div className="flex gap-3">
           <Button onClick={submit} disabled={busy}>

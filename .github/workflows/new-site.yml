@@ -40,6 +40,9 @@ on:
       operator:
         description: "HubSpot operator code for this site — optional"
         required: false
+      hubspot:
+        description: "HubSpot routing settings as JSON — optional (the dashboard fills this)"
+        required: false
 
 permissions:
   contents: write
@@ -68,6 +71,7 @@ jobs:
           NEW_EMAIL: ${{ inputs.email }}
           NEW_PHONE: ${{ inputs.phone }}
           NEW_OPERATOR: ${{ inputs.operator }}
+          NEW_HUBSPOT: ${{ inputs.hubspot }}
 
       - name: Commit to main
         run: |

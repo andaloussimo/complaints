@@ -58,9 +58,26 @@ export interface LegalPage {
   sections: RichSection[];
 }
 
+/**
+ * Per-site HubSpot routing settings (NOT the token — that stays a shared
+ * secret). Managed from the dashboard; deploy.yml syncs each value to the
+ * site's Pages project as the matching HUBSPOT_* env var, which the refund
+ * Function reads. Empty string = fall back to the shared repo-secret default.
+ */
+export interface HubSpotSettings {
+  pipeline?: string;
+  stage?: string;
+  owner?: string;
+  priority?: "" | "LOW" | "MEDIUM" | "HIGH";
+  routingProp?: string;
+  routingValue?: string;
+  operatorProp?: string;
+}
+
 export interface SiteContent {
   brand: BrandInfo;
   nav: NavLink[];
+  hubspot?: HubSpotSettings;
   /** SEO / <head> defaults. */
   meta: {
     title: string;

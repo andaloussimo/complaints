@@ -44,6 +44,9 @@ export async function onRequestPost(context: {
     if (!v.ok) return json({ error: v.error }, 400);
 
     const gh = githubFromEnv(context.env);
+    const hubspot = input.hubspot && Object.values(input.hubspot).some((v) => v?.trim())
+      ? JSON.stringify(input.hubspot)
+      : "";
     await gh.dispatchWorkflow("new-site.yml", {
       slug: String(input.slug).toLowerCase().trim(),
       brand: String(input.brand).trim(),
@@ -53,6 +56,7 @@ export async function onRequestPost(context: {
       email: input.email?.trim() ?? "",
       phone: input.phone?.trim() ?? "",
       operator: input.operator?.trim() ?? "",
+      hubspot,
     });
     return json({ ok: true });
   });

@@ -2,3 +2,5 @@
 # Fine-grained GitHub PAT scoped to the site repo: Contents=write, Actions=write.
 GITHUB_TOKEN=
 GITHUB_REPO=andaloussimo/complaints
+# Optional: HubSpot Private App token — enables live pipeline/owner dropdowns.
+HUBSPOT_TOKEN=

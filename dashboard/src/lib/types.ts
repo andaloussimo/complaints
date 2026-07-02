@@ -36,9 +36,24 @@ export interface ContactChannel {
   href?: string;
 }
 
+export const PRIORITIES = ["", "LOW", "MEDIUM", "HIGH"] as const;
+
+/** Per-site HubSpot routing settings (not the token). Synced to the site's
+ * Pages project env by deploy.yml; empty = use the shared repo default. */
+export interface HubSpotSettings {
+  pipeline?: string;
+  stage?: string;
+  owner?: string;
+  priority?: "" | "LOW" | "MEDIUM" | "HIGH";
+  routingProp?: string;
+  routingValue?: string;
+  operatorProp?: string;
+}
+
 export interface SiteContent {
   brand: { name: string; logo?: string; logoAlt?: string };
   nav: Array<{ label: string; href: string }>;
+  hubspot?: HubSpotSettings;
   meta: {
     title: string;
     description: string;
@@ -84,6 +99,15 @@ export interface CreateSiteInput {
   email?: string;
   phone?: string;
   operator?: string;
+  /** Serialized as one JSON workflow input (workflow_dispatch caps at 10). */
+  hubspot?: HubSpotSettings;
+}
+
+/** Pipelines/owners fetched live from HubSpot for the routing dropdowns. */
+export interface HubSpotMeta {
+  configured: boolean;
+  pipelines: Array<{ id: string; label: string; stages: Array<{ id: string; label: string }> }>;
+  owners: Array<{ id: string; label: string }>;
 }
 
 export interface SiteSummary {

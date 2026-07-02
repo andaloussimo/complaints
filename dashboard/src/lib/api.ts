@@ -1,5 +1,5 @@
 /** Browser-side client for the dashboard's Pages Functions. */
-import type { CreateSiteInput, SiteContent, SiteSummary, SiteTheme } from "./types";
+import type { CreateSiteInput, HubSpotMeta, SiteContent, SiteSummary, SiteTheme } from "./types";
 
 async function jsonOrThrow(res: Response) {
   const data = await res.json().catch(() => ({}));
@@ -65,4 +65,8 @@ export interface RunStatus {
 export async function getStatus(): Promise<RunStatus[]> {
   const data = await jsonOrThrow(await fetch("/api/status"));
   return (data as { runs: RunStatus[] }).runs;
+}
+
+export async function getHubSpotMeta(): Promise<HubSpotMeta> {
+  return (await jsonOrThrow(await fetch("/api/hubspot"))) as HubSpotMeta;
 }

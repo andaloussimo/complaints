@@ -3,7 +3,7 @@
  * Functions). Mirrors the rules in the main app's scripts/new-site.mjs and
  * src/config/site.ts so the dashboard can only ever produce buildable JSON.
  */
-import { LANGS, type CreateSiteInput, type SiteContent, type SiteTheme } from "./types";
+import { LANGS, PRIORITIES, type CreateSiteInput, type SiteContent, type SiteTheme } from "./types";
 
 export type Result = { ok: true } | { ok: false; error: string };
 
@@ -61,6 +61,9 @@ export function validateCreateInput(input: Partial<CreateSiteInput>): Result {
   if (input.email && !EMAIL_RE.test(input.email)) {
     return { ok: false, error: "Support email is not a valid address." };
   }
+  if (input.hubspot?.priority && !PRIORITIES.includes(input.hubspot.priority)) {
+    return { ok: false, error: "Priority must be LOW, MEDIUM or HIGH." };
+  }
   return { ok: true };
 }
 
@@ -79,6 +82,9 @@ export function validateContent(c: unknown): Result {
   if (!x.home?.hero?.title?.trim()) return { ok: false, error: "home.hero.title is required." };
   if (!Array.isArray(x.contact?.channels)) {
     return { ok: false, error: "contact.channels must be a list." };
+  }
+  if (x.hubspot?.priority && !PRIORITIES.includes(x.hubspot.priority)) {
+    return { ok: false, error: "hubspot.priority must be LOW, MEDIUM or HIGH." };
   }
   return { ok: true };
 }

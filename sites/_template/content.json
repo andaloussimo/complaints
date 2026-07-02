@@ -3,6 +3,15 @@
     "name": "Your Brand",
     "logoAlt": "Your Brand"
   },
+  "hubspot": {
+    "pipeline": "",
+    "stage": "",
+    "owner": "",
+    "priority": "",
+    "routingProp": "",
+    "routingValue": "",
+    "operatorProp": ""
+  },
   "nav": [
     { "label": "Home", "href": "/" },
     { "label": "Contact", "href": "/contact" },

@@ -57,18 +57,21 @@ SITE=acme npm run build         # a different site from the same code
 ## Form → HubSpot
 
 The form's language (UI + ticket text) comes from the site's `content.json`
-(`meta.formLang`, one of `en fr es pt sr me bg lv sl fi ro`). HubSpot connection settings
-are **runtime secrets** on the Cloudflare Pages project (see [`.env.example`](.env.example)
-for local `.dev.vars`):
+(`meta.formLang`, one of `en fr es pt sr me bg lv sl fi ro`).
 
-| Secret | Purpose |
-| --- | --- |
-| `HUBSPOT_TOKEN` | Private App token. Scopes: `tickets`, `crm.objects.contacts.write`, `files` |
-| `HUBSPOT_PIPELINE` / `HUBSPOT_STAGE` | Target Help Desk queue (blank = auto-detect) |
-| `HUBSPOT_OWNER` / `HUBSPOT_PRIORITY` | Optional assignment/priority |
-| `HUBSPOT_ROUTING_PROP` / `HUBSPOT_ROUTING_VALUE` | Stamp a routing property on every ticket |
-| `HUBSPOT_OPERATOR_PROP` / `HUBSPOT_OPERATOR_CODE` | Per-site operator code |
-| `HUBSPOT_ORIGIN_PROP` / `HUBSPOT_ORIGIN_VALUE` | Origin stamp on every ticket |
+**Credentials are shared:** one `HUBSPOT_TOKEN` GitHub **repo secret** (Private App token,
+scopes: `tickets`, `crm.objects.contacts.write`, `files`) is synced to every site's Pages
+project on each deploy.
+
+**Routing is per-site:** each site's `content.json` has a `hubspot` block — pipeline,
+stage, owner, priority, routing property/value, operator property — edited from the
+dashboard (create + edit pages, with live pipeline/owner dropdowns when the dashboard has
+a `HUBSPOT_TOKEN`). On each deploy, `deploy.yml` syncs those values to the site's project
+as the matching `HUBSPOT_*` env vars. Empty fields fall back to optional repo-secret
+defaults of the same names (`HUBSPOT_PIPELINE`, `HUBSPOT_STAGE`, `HUBSPOT_OWNER`,
+`HUBSPOT_PRIORITY`, `HUBSPOT_ROUTING_PROP`, `HUBSPOT_ROUTING_VALUE`,
+`HUBSPOT_OPERATOR_PROP`), or are unset. The per-site operator **code** lives at
+`home.operatorCode` and is sent with each form submission.
 
 The HubSpot flow is ported from the original WordPress plugin
 ([`src/lib/hubspot.ts`](src/lib/hubspot.ts), runtime-agnostic — takes a `HubSpotConfig`)
@@ -171,7 +174,8 @@ dashboard/
 1. Create a fine-grained GitHub PAT for `andaloussimo/complaints` (Contents=write,
    Actions=write).
 2. Create the Pages project: `npx wrangler pages project create complaints-dashboard
-   --production-branch=main`, and set its secrets `GITHUB_TOKEN` + `GITHUB_REPO=andaloussimo/complaints`.
+   --production-branch=main`, and set its secrets `GITHUB_TOKEN` + `GITHUB_REPO=andaloussimo/complaints`
+   (plus `HUBSPOT_TOKEN` to enable the live pipeline/owner dropdowns in the routing forms).
 3. Enable **Cloudflare Access** on the dashboard's domain (email allowlist).
 4. Push (or run **Deploy dashboard** in Actions) — `deploy-dashboard.yml` ships it.
 

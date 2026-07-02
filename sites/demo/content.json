@@ -4,6 +4,15 @@
     "logo": "logo.svg",
     "logoAlt": "RefundGuard"
   },
+  "hubspot": {
+    "pipeline": "",
+    "stage": "",
+    "owner": "",
+    "priority": "",
+    "routingProp": "",
+    "routingValue": "",
+    "operatorProp": ""
+  },
   "nav": [
     { "label": "Home", "href": "/" },
     { "label": "Contact", "href": "/contact" },

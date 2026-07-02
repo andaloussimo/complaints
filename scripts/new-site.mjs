@@ -12,6 +12,8 @@
  *   NEW_EMAIL     optional  support email
  *   NEW_PHONE     optional  support phone
  *   NEW_OPERATOR  optional  HubSpot operator code for this site
+ *   NEW_HUBSPOT   optional  JSON of per-site HubSpot routing settings, e.g.
+ *                           '{"pipeline":"7","stage":"8","priority":"HIGH"}'
  *
  * Usage locally:
  *   NEW_SLUG=acme NEW_BRAND="Acme Refunds" NEW_DOMAIN=https://acme.com \
@@ -64,6 +66,26 @@ const email = (process.env.NEW_EMAIL ?? "").trim();
 const phone = (process.env.NEW_PHONE ?? "").trim();
 const operator = (process.env.NEW_OPERATOR ?? "").trim();
 
+// Per-site HubSpot routing settings, passed as one JSON blob (workflow_dispatch
+// caps at 10 inputs). Tolerant: empty/invalid JSON just yields an empty block.
+const HUBSPOT_KEYS = ["pipeline", "stage", "owner", "priority", "routingProp", "routingValue", "operatorProp"];
+const PRIORITIES = ["", "LOW", "MEDIUM", "HIGH"];
+let hubspot = {};
+const rawHubspot = (process.env.NEW_HUBSPOT ?? "").trim();
+if (rawHubspot) {
+  try {
+    const parsed = JSON.parse(rawHubspot);
+    for (const k of HUBSPOT_KEYS) {
+      if (typeof parsed[k] === "string") hubspot[k] = parsed[k].trim();
+    }
+  } catch {
+    console.warn("[new-site] WARN: NEW_HUBSPOT is not valid JSON — using empty settings");
+  }
+}
+if (hubspot.priority && !PRIORITIES.includes(hubspot.priority)) {
+  fail(`invalid hubspot priority "${hubspot.priority}" (allowed: LOW, MEDIUM, HIGH)`);
+}
+
 if (!LANGS.includes(lang)) fail(`unsupported language "${lang}" (allowed: ${LANGS.join(", ")})`);
 
 const templateDir = path.join(root, "sites", "_template");
@@ -103,6 +125,7 @@ if (phone) {
 
 content.footer.legalNote = `© ${year} ${brand}. All rights reserved.`;
 if (operator) content.home.operatorCode = operator;
+content.hubspot = { ...(content.hubspot ?? {}), ...hubspot };
 
 // --- theme.json ---
 const theme = JSON.parse(fs.readFileSync(path.join(templateDir, "theme.json"), "utf8"));

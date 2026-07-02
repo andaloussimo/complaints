@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Banner, Button, Card, Field, TextArea, TextInput } from "@/components/ui";
+import { HubSpotFields } from "@/components/HubSpotFields";
 import { getSite, saveSite, uploadLogo, type SiteDetail } from "@/lib/api";
 import { hexToRgbTriplet, rgbTripletToHex, validateContent, validateTheme } from "@/lib/validate";
 import { LANGS, type SiteContent, type SiteTheme } from "@/lib/types";
@@ -194,6 +195,19 @@ export default function EditPage() {
             </Field>
           </div>
         ))}
+      </Card>
+
+      {/* HubSpot routing (pipeline/stage/owner/priority/routing prop) */}
+      <Card className="space-y-4">
+        <h2 className="font-semibold text-gray-900">HubSpot routing</h2>
+        <p className="text-xs text-gray-500">
+          Where this site&apos;s refund tickets land. Empty fields fall back to the shared
+          defaults. Applied on the next publish.
+        </p>
+        <HubSpotFields
+          value={content.hubspot ?? {}}
+          onChange={(next) => patchContent((c) => { c.hubspot = next; })}
+        />
       </Card>
 
       {/* Theme colors */}

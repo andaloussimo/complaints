@@ -58,23 +58,45 @@ jobs:
         env:
           SITE: ${{ matrix.site }}
 
-      # All sites share the same HubSpot credentials: the repo secrets are the
-      # single source of truth, synced to every project on each deploy (before
-      # deploying, so the new deployment picks them up). Rotate the key once in
-      # GitHub -> next deploy updates every site.
+      # HubSpot config sync. The token is shared (repo secret). The routing
+      # settings come from the site's content.json `hubspot` block (managed in
+      # the dashboard), falling back to repo-secret defaults; empty on both
+      # sides unsets the project var. Runs before the deploy so the new
+      # deployment picks the values up.
       - name: Sync HubSpot secrets to ${{ matrix.site }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
-          HUBSPOT_PIPELINE: ${{ secrets.HUBSPOT_PIPELINE }}
-          HUBSPOT_OPERATOR_PROP: ${{ secrets.HUBSPOT_OPERATOR_PROP }}
+          DEF_PIPELINE: ${{ secrets.HUBSPOT_PIPELINE }}
+          DEF_STAGE: ${{ secrets.HUBSPOT_STAGE }}
+          DEF_OWNER: ${{ secrets.HUBSPOT_OWNER }}
+          DEF_PRIORITY: ${{ secrets.HUBSPOT_PRIORITY }}
+          DEF_ROUTING_PROP: ${{ secrets.HUBSPOT_ROUTING_PROP }}
+          DEF_ROUTING_VALUE: ${{ secrets.HUBSPOT_ROUTING_VALUE }}
+          DEF_OPERATOR_PROP: ${{ secrets.HUBSPOT_OPERATOR_PROP }}
         run: |
           set -e
-          put() { printf '%s' "$2" | npx wrangler pages secret put "$1" --project-name="${{ matrix.site }}"; }
+          PROJECT="${{ matrix.site }}"
+          CONTENT="sites/${{ matrix.site }}/content.json"
+          put() { printf '%s' "$2" | npx wrangler pages secret put "$1" --project-name="$PROJECT"; }
+          sync() { # $1 = HUBSPOT_* var name, $2 = jq path in content.json, $3 = repo default
+            site_val=$(jq -r "$2 // \"\"" "$CONTENT")
+            val="${site_val:-$3}"
+            if [ -n "$val" ]; then
+              put "$1" "$val"
+            else
+              echo y | npx wrangler pages secret delete "$1" --project-name="$PROJECT" 2>/dev/null || true
+            fi
+          }
           if [ -n "$HUBSPOT_TOKEN" ]; then put HUBSPOT_TOKEN "$HUBSPOT_TOKEN"; else echo "No HUBSPOT_TOKEN repo secret — skipping sync (form will error until set)."; fi
-          [ -n "$HUBSPOT_PIPELINE" ] && put HUBSPOT_PIPELINE "$HUBSPOT_PIPELINE" || true
-          [ -n "$HUBSPOT_OPERATOR_PROP" ] && put HUBSPOT_OPERATOR_PROP "$HUBSPOT_OPERATOR_PROP" || true
+          sync HUBSPOT_PIPELINE      '.hubspot.pipeline'     "$DEF_PIPELINE"
+          sync HUBSPOT_STAGE         '.hubspot.stage'        "$DEF_STAGE"
+          sync HUBSPOT_OWNER         '.hubspot.owner'        "$DEF_OWNER"
+          sync HUBSPOT_PRIORITY      '.hubspot.priority'     "$DEF_PRIORITY"
+          sync HUBSPOT_ROUTING_PROP  '.hubspot.routingProp'  "$DEF_ROUTING_PROP"
+          sync HUBSPOT_ROUTING_VALUE '.hubspot.routingValue' "$DEF_ROUTING_VALUE"
+          sync HUBSPOT_OPERATOR_PROP '.hubspot.operatorProp' "$DEF_OPERATOR_PROP"
 
       # Direct upload (no CF build minutes). wrangler auto-bundles ./functions.
       - name: Deploy ${{ matrix.site }}
