@@ -2,9 +2,7 @@ name: Deploy sites to Cloudflare Pages
 
 # Deploys every site under sites/* to its own Cloudflare Pages project.
 # Convention: the Pages project name == the site folder name (slug).
-# Create each project once before its first deploy (the "New site" workflow
-# does this automatically):
-#   npx wrangler pages project create <slug> --production-branch=main
+# Projects are auto-created on first deploy — no manual Cloudflare setup.
 # HubSpot credentials are SHARED across sites: set HUBSPOT_TOKEN (and optional
 # HUBSPOT_PIPELINE / HUBSPOT_OPERATOR_PROP) once as GitHub repo secrets — this
 # workflow syncs them to every site's project on each deploy.
@@ -57,6 +55,15 @@ jobs:
         run: npm run build
         env:
           SITE: ${{ matrix.site }}
+
+      # Idempotent: creates the project on first deploy, no-ops afterwards.
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages project create "${{ matrix.site }}" --production-branch=main \
+            || echo "Project already exists — continuing."
 
       # HubSpot config sync. The token is shared (repo secret). The routing
       # settings come from the site's content.json `hubspot` block (managed in
